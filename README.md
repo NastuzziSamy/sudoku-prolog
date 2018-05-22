@@ -11,50 +11,40 @@
 
 ## Todo List
 
-- [ ] Jouer au sudoku
-
+ - [ ] Jouer au sudoku
 	- [ ] Generation d'une grille valide
-
 		- [ ] Representer une grille vide
 		- [ ] Representer une grille X * X
 		- [ ] Representer une grille completée valide
 		- [ ] Generer une grille partiellement remplie
 		- [ ] Algorithme de résolution de grille
-
 			- [ ] Règles de validation
 			- [ ] Verifier chaque case en fonction de sa postion
 
 	- [ ] Entrée d'un chiffre dans une case
-
 		- [ ] Verifier si la grille est toujour valide
 		- [ ] Developper "l'interface" homme-machine
-
 			- [ ] Demander au joueur une position
 			- [ ] Demander son chiffre
 			- [ ] Entrer le chiffre
 			- [ ] Lui répondre
 
 	- [ ] Generer les solutions possibles
-
 		- [ ] Utiliser les algorithmes de résolution afin de tester chaque chiffre dans chaque case
-
+			- [ ] Sauvegarder chaque grille valide trouvée
 			- [ ] Parcours en profondeur
-
 				- [ ] Si un chiffre entre et est valide alors, case suivante
 				- [ ] Si un chiffre entre et est refusé alors, chiffre suivant
 				- [ ] Si X refusé et X fut testé entre [0-9] alors grille refusée
 				- [ ] Si grille complète, alors grille validée
 
-			- [ ] Sauvegarder chaque grille valide trouvée
 
 - [ ] Visualiser les grilles
-
 	- [ ] Visualiser une ligne
-
 		- [ ] Visualiser une case
 
-- [ ] Tester une grille donnée
 
+- [ ] Tester une grille donnée
 	- [ ] Lire une grille sur un fichier texte ?
 	- [ ] Entrée 'a la main' de la grille
 	- [ ] Tester les règles de validation sur la grille
