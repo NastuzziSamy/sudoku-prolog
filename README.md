@@ -1,15 +1,15 @@
-#Sudoku Resolver
+# Sudoku Resolver
 
-##Welcome to this exciting project !
+## Welcome to this exciting project !
 
 * This little program, developed in prolog, can resolve any sudoku grid you give him.
 * Also, it can help you increase your skills in sudoku resolving, indeed, it can generate sudoku grid and check if your solution is right !
 
-##How to make it work
+## How to make it work
 
 *This is in development please come back later, it will have amazing way to make this thing work on your computer !*
 
-##Todo List
+## Todo List
 
 * Jouer au sudoku
 	* Generation d'une grille valide
