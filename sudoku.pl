@@ -1,6 +1,4 @@
-use_module(library(lists)).
-
-/* Pour l'instant nos sudokus font 9 de taille */
+/* Nos sudokus font 9 de taille */
 newLine(Y) :- Y = [_, _, _, _, _, _, _, _, _].
 
 newGrid(L) :- L = [
@@ -60,13 +58,15 @@ grid4(L) :- L = [
     [_, 1, 2, 3, 4, 5, 6, 7, 8]
 ].
 
-randomLine([]).
-randomLine([X|R]) :- random(1, 50, Xr), (Xr < 10 -> X = Xr; !), randomLine(R).
-newRandomLine(Y) :- newLine(Y), randomLine(Y).
+tryToAffectValue(X, L) :- random(1, 20, Xr), (Xr < 10 -> X is Xr, isGridOk(L); true).
 
-randomGrid([]).
-randomGrid([Y|R]) :- newRandomLine(Y), randomGrid(R).
-newRandomGrid(L) :- newLine(L), randomGrid(L).
+randomLine([], _).
+randomLine([X|R], L) :- (tryToAffectValue(X, L) -> randomLine(R, L); randomLine([X|R], L)).
+newRandomLine(Y, L) :- newLine(Y), randomLine(Y, L).
+
+randomGrid([], _).
+randomGrid([Y|R], L) :- newRandomLine(Y, L), randomGrid(R, L).
+newRandomGrid(L) :- newLine(L), randomGrid(L, L).
 
 printLine([]) :- write('|').
 printLine([X|R]) :- write('|'), (var(X) -> write(' '); write(X)), printLine(R).
