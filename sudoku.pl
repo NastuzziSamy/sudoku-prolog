@@ -58,7 +58,8 @@ grid4(L) :- L = [
     [_, 1, 2, 3, 4, 5, 6, 7, 8]
 ].
 
-tryToAffectValue(X, L) :- random(1, 20, Xr), (Xr < 10 -> X is Xr, isGridOk(L); true).
+/* La seconde valeur > 10 du random permet de ne pas populer toute la grille */
+tryToAffectValue(X, L) :- random(1, 11, Xr), (Xr < 10 -> X is Xr, isGridOk(L); !).
 
 randomLine([], _).
 randomLine([X|R], L) :- (tryToAffectValue(X, L) -> randomLine(R, L); randomLine([X|R], L)).
