@@ -9,6 +9,8 @@
 
 *This is in development please come back later, it will have amazing way to make this thing work on your computer !*
 
+__Il est impératif de lancer le programme grâce à SWI-Prolog (pour avoir les librairies nécessaires `swipl`__
+
 ## Todo List
 
  1. Jouer au sudoku
