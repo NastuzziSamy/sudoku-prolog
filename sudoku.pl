@@ -1,4 +1,19 @@
-grid(Grid1 ):- Grid1=[
+/* Pour l'instant nos sudokus font 9 de taille */
+newLine(X) :- X = [_, _, _, _, _, _, _, _, _].
+
+newGrid(L) :- L = [
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _]
+].
+
+grid1(L) :- L = [
     [1, _, 3, _, 5, _, _, _, 9],
     [_, _, 4, 5, _, _, 8, _, 1],
     [_, 4, 5, _, _, 8, _, 1, 2],
@@ -10,31 +25,18 @@ grid(Grid1 ):- Grid1=[
     [_, 1, 2, 3, 4, 5, 6, 7, 8]
 ].
 
-/* Pour l'instant nos sudokus font 9 de taille */
-newGrid(L) :- L = [
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _],
-                [_, _, _, _, _, _, _, _, _]
-            ].
-
-line(Ligne):- Ligne=[_,_,_].
-
-randomGrid([[]]).
 randomLine([]).
 randomLine([X|R]) :- random(1, 9, X),
                     randomLine(R).
+newRandomLine(X) :- newLine(X), randomLine(X).
 
-randomGrid([Y|R]) :- write(Y), randomLine(Y), randomGrid(R).
+randomGrid([]).
+randomGrid([Y|R]) :- newRandomLine(Y), randomGrid(R).
+newRandomGrid(L) :- newLine(L), randomGrid(L).
 
-printLine([]).
+printLine([]) :- write('|').
 printLine([X|R]) :- write('|'),
                     (var(X) -> write(' '); write(X))
                     , printLine(R).
-printGrid([[]]).
-printGrid([Y|R]) :- printLine(Y), write('|'), nl, printGrid(R).
+printGrid([[]]) :- write('|').
+printGrid([Y|R]) :- printLine(Y), nl, printGrid(R).
