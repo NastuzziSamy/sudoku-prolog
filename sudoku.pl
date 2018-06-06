@@ -21,7 +21,7 @@ grid1(L) :- L = [
     [5, 6, 7, 8, 9, 1, 2, 3, 4],
     [8, 9, 1, 2, 3, 4, 5, 6, 7],
     [3, 4, 5, 6, 7, 8, 9, 1, 2],
-    [6, 7, 8, 9, 1, 2, 3, 4, 5],
+    [6, 7, 8, 9, 1, 2, 3, _, 5],
     [9, 1, 2, 3, 4, 5, 6, 7, 8]
 ].
 grid2(L) :- L = [
@@ -41,7 +41,7 @@ grid3(L) :- L = [
     [_, 8, _, 1, _, 3, _, 5, 6],
     [_, _, 4, 5, _, _, 8, _, 1],
     [5, _, _, 8, _, 1, _, _, 4],
-    [8, _, 1, 2, 3, 4, 5, _, 7],
+    [8, _, 1, 2, _, _, 5, _, 7],
     [_, 4, 5, _, _, 8, _, _, 2],
     [_, _, 8, _, 1, 2, _, _, 5],
     [_, 1, 2, 3, _, 5, _, 7, 8]
@@ -58,8 +58,8 @@ grid4(L) :- L = [
     [_, 1, 2, 3, 4, 5, 6, 7, 8]
 ].
 
-/* La seconde valeur > 10 du random permet de ne pas populer toute la grille */
-tryToAffectValue(X, L) :- random(1, 40, Xr), (Xr < 10 -> X is Xr, isGridOk(L); !).
+/* La seconde valeur > 10 et < 20 (complexité) du random permet de ne pas populer toute la grille */
+tryToAffectValue(X, L) :- random(1, 20, Xr), (Xr < 10 -> X is Xr, isGridOk(L); true).
 
 randomLine([], _).
 randomLine([X|R], L) :- (tryToAffectValue(X, L) -> randomLine(R, L); randomLine([X|R], L)).
@@ -90,7 +90,7 @@ isGridOk(L) :- L = [
         [A9, B9, C9, D9, E9, F9, G9, H9, I9]
     ],
 
-    printGrid(L),
+    /*printGrid(L),*/
 
     /* Vérification par ligne */
     isLineOk([A1, B1, C1, D1, E1, F1, G1, H1, I1]),
@@ -125,30 +125,21 @@ isGridOk(L) :- L = [
     isLineOk([D7, D8, D9, E7, E8, E9, F7, F8, F9]),
     isLineOk([G7, G8, G9, H7, H8, H9, I7, I8, I9]).
 
-tryWith1(X, L) :- X is 1, isGridOk(L).
-tryWith2(X, L) :- X is 2, isGridOk(L).
-tryWith3(X, L) :- X is 3, isGridOk(L).
-tryWith4(X, L) :- X is 4, isGridOk(L).
-tryWith5(X, L) :- X is 5, isGridOk(L).
-tryWith6(X, L) :- X is 6, isGridOk(L).
-tryWith7(X, L) :- X is 7, isGridOk(L).
-tryWith8(X, L) :- X is 8, isGridOk(L).
-tryWith9(X, L) :- X is 9, isGridOk(L).
+tryToSolveWithValue(1, L) :- isGridOk(L).
+tryToSolveWithValue(2, L) :- isGridOk(L).
+tryToSolveWithValue(3, L) :- isGridOk(L).
+tryToSolveWithValue(4, L) :- isGridOk(L).
+tryToSolveWithValue(5, L) :- isGridOk(L).
+tryToSolveWithValue(6, L) :- isGridOk(L).
+tryToSolveWithValue(7, L) :- isGridOk(L).
+tryToSolveWithValue(8, L) :- isGridOk(L).
+tryToSolveWithValue(9, L) :- isGridOk(L).
 
-tryToResolveValue(X, L) :- (nonvar(X) -> true;
-    (tryWith1(X, L) -> true;
-    (tryWith2(X, L) -> true;
-    (tryWith4(X, L) -> true;
-    (tryWith3(X, L) -> true;
-    (tryWith5(X, L) -> true;
-    (tryWith6(X, L) -> true;
-    (tryWith7(X, L) -> true;
-    (tryWith8(X, L) -> true;
-    (tryWith9(X, L))))))))))).
+tryToSolveValue(X, L) :- (nonvar(X) -> true; tryToSolveWithValue(X, L)).
 
-resolveLine([], _).
-resolveLine([X|R], L) :- tryToResolveValue(X, L), resolveLine(R, L).
+solveLine([], _).
+solveLine([X|R], L) :- tryToSolveValue(X, L), solveLine(R, L).
 
-resolveGrid([], _).
-resolveGrid([Y|R], L) :- isGridOk(L), resolveLine(Y, L), resolveGrid(R, L).
-resolveGrid(L) :- (isGridOk(L) -> printGrid(L), (resolveGrid(L, L) -> nl, write('Résolution:'), nl, printGrid(L); write('Grille insolvable'), false); write('Grille invalide'), false).
+solveGrid([], _).
+solveGrid([Y|R], L) :- isGridOk(L), solveLine(Y, L), solveGrid(R, L).
+solveGrid(L) :- (isGridOk(L) -> printGrid(L), (solveGrid(L, L) -> nl, write('Résolution:'), nl, printGrid(L); write('Grille insolvable'), false); write('Grille invalide'), false).
