@@ -61,13 +61,17 @@ grid4(L) :- L = [
 /* La seconde valeur > 10 et < 20 (complexité) du random permet de ne pas populer toute la grille */
 tryToAffectValue(X, L) :- random(1, 20, Xr), (Xr < 10 -> X is Xr, isGridOk(L); true).
 
-randomLine([], _).
-randomLine([X|R], L) :- (tryToAffectValue(X, L) -> randomLine(R, L); randomLine([X|R], L)).
-newRandomLine(Y, L) :- newLine(Y), randomLine(Y, L).
+randomLine([], _, _).
+randomLine([_|_], _, 0).
+randomLine([X|R], L, C) :- (tryToAffectValue(X, L) -> Cr is C-1, randomLine(R, L, Cr); randomLine([X|R], L, C)).
+newRandomLine(Y, L, C) :- newLine(Y), randomLine(Y, L, C).
 
-randomGrid([], _).
-randomGrid([Y|R], L) :- newRandomLine(Y, L), randomGrid(R, L).
-newRandomGrid(L) :- newLine(L), randomGrid(L, L).
+randomGrid([], _, _).
+randomGrid([_|_], _, -1). /*17-9 = 8, 8-9 = -1, a la deuxieme il faut s'arreter d'ou la condition d'arret, c'est crado mais j'ai pas trouve mieux*/
+randomGrid([Y|R], L, C) :- newRandomLine(Y, L, C), Cr is C-9, randomGrid(R, L, Cr).
+newRandomGrid(L) :- newLine(L), randomGrid(L, L, 17). /*C est le nombre de chiffre que l'on place au hasard dans la grille, 17 etant le minimum pour avoir une solution unique*/
+
+generateGoodGrid(L) :- newRandomGrid(L),write('generated, trying to resolve...'), nl, resolveGrid(L).
 
 printLine([]) :- write('|').
 printLine([X|R]) :- write('|'), (var(X) -> write(' '); write(X)), printLine(R).
