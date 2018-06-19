@@ -147,6 +147,7 @@ tryToSolveWithValue(6, L) :- isGridOk(L).
 tryToSolveWithValue(7, L) :- isGridOk(L).
 tryToSolveWithValue(8, L) :- isGridOk(L).
 tryToSolveWithValue(9, L) :- isGridOk(L).
+tryToSolveWithValue(X, L, Y) :- (nonvar(X) -> false; X is Y, isGridOk(L)).
 
 tryToSolveValue(X, L) :- (nonvar(X) -> true; tryToSolveWithValue(X, L)).
 
@@ -155,52 +156,47 @@ solveLine([X|R], L) :- tryToSolveValue(X, L), solveLine(R, L).
 
 solveGrid([], _).
 solveGrid([Y|R], L) :- isGridOk(L), solveLine(Y, L), solveGrid(R, L).
-solveGrid(L) :- (isGridOk(L) -> printGrid(L), (solveGrid(L, L) -> nl, write('Résolution:'), nl, printGrid(L); write('Grille insolvable'), false); write('Grille invalide'), false).
+solveGrid(L) :- (isGridOk(L) -> printGrid(L), (solveGrid(L, L) -> nl, write('Solution:'), nl, printGrid(L); write('Grille insolvable'), false); write('Grille invalide'), false).
 
 
 /*User interaction*/
 
-read_number(N, X, Y) :- 
-    write('write a number, a Y position and a X position'),
+read_number(N, X, Y) :-
+    write('Donnez d\'abord un chiffre, une position X et Y'),
     nl,
-    write('number : '),
+    write('Chiffre: '),
     nl,
     read(N),
-    write('Y position : '),/*les colonnes et les lignes sont inversees en info et flemme de refaire le code*/
+    write('Position X: '),
     nl,
-    read(X),
-    write('X position : '),
+    read(Y),
+    write('Position Y: '),/*les colonnes et les lignes sont inversees en info et flemme de refaire le code*/
     nl,
-    read(Y).
+    read(X).
 
-playSudoku(L) :- 
+playSudoku(L) :-
     generatePlayableGrid(L, A),
     play(A, L).
-    
+
 isWon(A, L):-
     verifWin(A, L).
 
 play(A, L):- /*A est pour actuel, L la grille resolue*/
-    (isWon(A, L) -> 
+    (isWon(A, L) ->
         write('Bravo, c est gagné ! '), true
         ;
         printGrid(A),
-        revert(J),
-        (J == 'Y' -> false; nextTurn(A, L))). /*J ai pas reussi a faire de backtacking*/
-    
+        nextTurn(A, L)). /*J ai pas reussi a faire de backtacking*/
+
 
 nextTurn(A, L):-
     nl,
     read_number(N, X, Y),
-    insert_Grid(N, X, Y, A),
-    play(A, L).
-
-revert(J):-
     nl,
-    write('Voulez-vous revenir au coup d avant ?'), nl,
-    write('Y | N'), nl,
-    read(J),
-    (J == 'Y' -> write('Reverting...'), nl; write('Jouons alors !'), nl).
+    newGrid(B),
+    copyGrid(B, A),
+    (insert_Grid(N, X, Y, B, B) -> insert_Grid(N, X, Y, A, A); write('Insertion non valide'), nl),
+    play(A, L).
 
 verifWin([], []).
 verifWin([X|R], [T|Q]):-
@@ -209,48 +205,53 @@ verifWin([X|R], [T|Q]):-
 
 verifWinLine([], []).
 verifWinLine([X|R], [T|Q]):-
-    (X == T -> verifWinLine(R, Q); false, !).
+    (X == T -> verifWinLine(R, Q); false, true).
 
 
-insert_Grid(_, 0, _, [_|_]).
-insert_Grid(_, _, _, []).
-insert_Grid(N, X, Y, [T|Q]) :-
-    (X > 1 -> Xr is X-1, insert_Grid(N, Xr, Y, Q); insert_Line(N, Y, T)).
+insert_Grid(_, 0, _, [_|_], _).
+insert_Grid(_, _, _, [], _).
+insert_Grid(N, X, Y, [T|Q], A) :-
+    (X > 1 -> Xr is X-1, insert_Grid(N, Xr, Y, Q, A); insert_Line(N, Y, T, A)).
 
-insert_Line(_, 0, [_|_]).
-insert_Line(_, _, []).
-insert_Line(N, Y, [T|Q]):-
-    (Y > 1 -> Yr is Y-1, insert_Line(N, Yr, Q); T is N).
-    
+insert_Line(_, 0, [_|_], _).
+insert_Line(_, _, [], _).
+insert_Line(N, Y, [T|Q], A):-
+    (Y > 1 -> Yr is Y-1, insert_Line(N, Yr, Q, A); tryToSolveWithValue(T, A, N)).
+
 generateSolvedGrid(L) :-
-    newGoodRandomGrid(L), 
-    printGrid(L), 
+    newGoodRandomGrid(L),
+    printGrid(L),
     solveGrid(L),
     nl, nl, nl, nl, nl, nl, nl, nl.
 
 generatePlayableGrid(L, A) :-
     generateSolvedGrid(L),
-    generateHolesInGrid(L, A). /*A est la grille trouee, L etant la grille solutionnee*/
+    readDifficulty(J),
+    generateHolesInGrid(L, A, J). /*A est la grille trouee, L etant la grille solutionnee*/
 
+readDifficulty(J) :-
+    write('Entre 1 - Facile et 50 - Très difficile'), nl,
+    write('Choisissez votre difficulte: '),
+    read(J).
 
-generateHolesInGrid(L, A) :- 
+generateHolesInGrid(L, A, J) :-
     newGrid(A),
-    putHoles(L, A).
+    putHoles(L, A, J).
 
-putHoles([], []).
-putHoles([X|R], [Y|S]) :-
-    putHolesInLine(X, Y),
-    putHoles(R, S).
+putHoles([], [], _).
+putHoles([X|R], [Y|S], J) :-
+    putHolesInLine(X, Y, J),
+    putHoles(R, S, J).
 
-putHolesInLine([], []).
-putHolesInLine([X|R], [Y|S]) :-
-    tryToCopyValue(X, Y),
-    putHolesInLine(R, S).
+putHolesInLine([], [], _).
+putHolesInLine([X|R], [Y|S], J) :-
+    tryToCopyValue(X, Y, J),
+    putHolesInLine(R, S, J).
 
-tryToCopyValue(X, Y) :- 
-    random(1, 20, Xr), 
-    (Xr < 10 -> Y is X; true).
-
+tryToCopyValue(X, Y, J) :-
+    R is J + 1,
+    random(1, R, Xr),
+    (Xr < 2 -> Y is X; true).
 
 copyGrid([], []).
 copyGrid([X|R], [T|Q]):-
@@ -259,5 +260,4 @@ copyGrid([X|R], [T|Q]):-
 
 copyGridLine([], []).
 copyGridLine([X|R], [T|Q]):-
-    X is T,
-    copyGridLine(R, Q).
+    (nonvar(T) -> X is T, copyGridLine(R, Q); copyGridLine(R, Q)).
